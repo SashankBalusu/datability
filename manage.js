@@ -19,7 +19,7 @@ const userprofile = document.getElementById("userprofile")
 console.log(localStorage.getItem("photoURL"))
 userprofile.src =  (localStorage.getItem("photoURL")).slice(1,-1)
 const username = document.getElementById("username")
-let names = (localStorage.getItem("displayName")).slice(1,-1).split(" ")
+let names = (localStorage.getItem("displayName")).slice(1,-1)
 console.log(names)
 let title, description, city, startdate, enddate, payout, type, pic
 const create = document.getElementById("create")
@@ -28,7 +28,7 @@ create.addEventListener("click", function(){
     const form = document.getElementById("form").setAttribute("style", "display: block;")
 
 }) 
-username.textContent = names[0].charAt(0) + ". " + names[1]
+username.textContent = names
 const querySnapshot = await getDocs(collection(db, "challenges"));
 let count = 0
 querySnapshot.forEach((doc) => {
@@ -65,6 +65,7 @@ querySnapshot.forEach((doc) => {
         temp.id = "analyze" + count
         
     }
+    
   // doc.data() is never undefined for query doc snapshots
   console.log(doc.id, " => ", doc.data());
 });
