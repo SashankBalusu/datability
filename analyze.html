@@ -1,0 +1,219 @@
+<html>
+  <head>
+    <title>Datability</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <!-- jsFiddle will insert css and js -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+    <link href="assets/css/styles.css" rel="stylesheet">
+    <style>
+        body {
+  margin: 0;
+  padding: 0; }
+
+#map-canvas {
+  width: 100%;
+  height: 100%;
+  position: absolute; }
+  .gm-style img{
+    width: 75px;
+    height: 75px;
+
+  }
+.centerMarker {
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  background-color: #1da6cc;
+  margin: -5px 0 0 -4px;
+  animation: centerMarker 2s infinite ease;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  box-sizing: border-box;
+  user-select: none; }
+  .centerMarker::before, .centerMarker::after {
+    position: absolute;
+    margin: -35% 0 0 -35%;
+    height: 170%;
+    width: 170%;
+    content: '';
+    border-radius: 50% 50% 50% 50%;
+    box-sizing: border-box;
+    border: 0;
+    touch-action: manipulation;
+    user-select: none; }
+  .centerMarker::before {
+    background-color: rgba(181, 213, 140, 0.1);
+    box-shadow: inset 0 0 1px #b5d58c;
+    animation: centerMarkerRadar 2s infinite ease; }
+  .centerMarker::after {
+    background-color: rgba(29, 166, 204, 0.1);
+    box-shadow: inset 0 0 1px #1da6cc;
+    animation: centerMarkerRadar 2s infinite ease;
+    animation-delay: 1.5s; }
+
+@keyframes centerMarker {
+  1% {
+    transform: scale(1);
+    background-color: #b5d58c; }
+  50% {
+    transform: scale(1.2); }
+  60% {
+    background-color: #b5d58c; }
+  100% {
+    transform: scale(1);
+    background-color: #1da6cc; } }
+
+@keyframes centerMarkerRadar {
+  0% {
+    transform: scale(1);
+    opacity: 1; }
+  60% {
+    opacity: .2; }
+  100% {
+    transform: scale(7);
+    opacity: 0; } }
+
+
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <center><button id = "jsonEx" style = "height: 40px; font-size: 30px; font-family: raleway;">Export to JSON</button></center>
+    <!-- 
+     The `defer` attribute causes the callback to execute after the full HTML
+     document has been parsed. For non-blocking uses, avoiding race conditions,
+     and consistent behavior across browsers, consider loading using Promises
+     with https://www.npmjs.com/package/@googlemaps/js-api-loader.
+    -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDocs, getDoc, collection } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-firestore.js"; 
+        import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBo3fI3t65oQKFtd_iLDn0xbsT80wwofTA",
+            authDomain: "datability-cd3d1.firebaseapp.com",
+            projectId: "datability-cd3d1",
+            storageBucket: "datability-cd3d1.appspot.com",
+            messagingSenderId: "145330433837",
+            appId: "1:145330433837:web:c52ccb2ee69cb02e4b6da4",
+            measurementId: "G-TNZM598D89"
+        };
+
+
+        // Initialize Firebase
+
+        let formd = {}
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage();
+
+        let chartToCreate
+        if (localStorage.getItem("createGraph") != undefined){
+            chartToCreate = parseInt(localStorage.getItem("createGraph"))
+            localStorage.removeItem("createGraph")
+        }
+        else {
+            chartToCreate = 1
+        }
+        let docDat
+        let counter = 0
+        const querySnapshot = await getDocs(collection(db, "challenges"));
+
+        querySnapshot.forEach((doc) => {
+            counter ++
+            if (counter == (chartToCreate)){
+                docDat = doc.data()
+                return
+            }
+            console.log(doc.data())
+            // doc.data() is never undefined for query doc snapshots
+        });
+        console.log(docDat)
+        // let query = await getDoc(collection(db, `challenges/${docDat["id"]}/entries`));
+        // console.log(query)
+        const query = await getDocs(collection(db, `challenges/${docDat["id"]}/entries`));
+        let count = 0
+        
+        query.forEach((doc) => {
+        console.log(doc)
+        if (count == 0){
+            localStorage.setItem("lat", doc.data()["lat"])
+            localStorage.setItem("long", doc.data()["long"])
+            getDownloadURL(ref(storage, doc.data()["photo"]))
+            .then((url) => {
+                console.log(url)
+                localStorage.setItem("img", url)
+
+            })
+
+
+        }
+        else if (count == 1 ){
+            localStorage.setItem("latArr", JSON.stringify([doc.data()["lat"].toFixed(4)]))
+            localStorage.setItem("lngArr", JSON.stringify([doc.data()["long"].toFixed(4)]))
+            getDownloadURL(ref(storage, doc.data()["photo"]))
+            .then((url) => {
+                console.log(url)
+                localStorage.setItem("imgArr", JSON.stringify([url]))
+
+            })
+
+        }
+        else {
+            let latArr = JSON.parse(localStorage.getItem("latArr"))
+            let lngArr = JSON.parse(localStorage.getItem("lngArr"))
+            let imgArr = JSON.parse(localStorage.getItem("imgArr"))
+            console.log(latArr)
+            console.log(lngArr)
+            latArr.push(doc.data()["lat"])
+            lngArr.push(doc.data()["long"])
+            getDownloadURL(ref(storage, doc.data()["photo"]))
+            .then((url) => {
+                console.log(url)
+                imgArr.push(url)
+                localStorage.setItem("imgArr", JSON.stringify(imgArr))
+
+            })
+
+            localStorage.setItem("latArr", JSON.stringify(latArr))
+            localStorage.setItem("lngArr", JSON.stringify(lngArr))
+
+
+        }
+        count++
+        // image info stuff
+        formd[doc.id] = doc.data()
+        console.log(doc.id, " => ", doc.data());
+        });
+        console.log(formd)
+        
+        function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+        }
+        const jsonEx = document.getElementById("jsonEx")
+        jsonEx.addEventListener("click", function(){
+        download("data.json",JSON.stringify(formd));
+            console.log(query)
+        })
+// Start file download.
+
+    </script>
+    <script src = "analyze.js"></script>
+    <!-- <script src = "https://maps.googleapis.com/maps/api/js?v=3.exp"></script> -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWVLnGAQwn0-zlLvTinjrZ1BENGMYIVJA&callback=initMap"
+    ></script>
+  </body>
+</html>

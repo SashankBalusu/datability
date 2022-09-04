@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="assets/img/favicontest.jpeg" rel="icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo&display=swap" rel="stylesheet">
+    <link href="onboarding.css" rel="stylesheet">
+
+</head>
+<body>
+    <button onClick="slide('prev')" id = "moveup">🡩</button>
+
+    <div class = "container">
+        <div class = "pages">
+            <div class = "page one">
+                <h1 id = "greeting">Input your details and get onboarded!</h1>
+            </div>
+            <div class = "page two">
+                <h1 id = "detailsHeader">Paste the data here:</h1>
+                <input type = "text" placeholder = "card number" id = "cardnum"></input>
+                <input type = "text" placeholder = "expiration date" id = "exp"></input>
+                <input type = "number" placeholder = "cvc" id = "cvc"></input>
+            </div>
+            <div class = "page three">
+                <h1 id = "redirect">Redirecting...</h1>
+            </div>
+        </div>
+    </div>
+    <button onClick="slide('next')" id = "movedown">🡫</button>
+    <script  src = "onboarding.js"></script>
+</body>
+</html>
